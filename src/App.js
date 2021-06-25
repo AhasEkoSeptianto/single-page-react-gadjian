@@ -1,25 +1,32 @@
-import logo from './logo.svg';
-import './App.css';
+// lazy load react
+import React, { lazy, Suspense } from 'react';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import Load from './Components/Load';
+
+const MainPages = lazy(() => import('./Pages/MainPages'));
+const Navbar = lazy(() => import('./Components/Navbar'));
+const Header = lazy(() => import('./Components/Header'));
+
+class App extends React.Component {
+
+  render(){
+    return (
+      <Suspense fallback={<Load />}>
+        <Header />
+
+        <div className="grid grid-cols-5 gap-2">
+          <div className='hidden lg:block'>
+            <Navbar/>
+          </div>
+          <div className='col-span-full lg:col-span-4 p-5 bg-gray'>
+            <MainPages />
+          </div>
+
+        </div>
+
+      </Suspense>
+    );
+  }
 }
 
 export default App;
