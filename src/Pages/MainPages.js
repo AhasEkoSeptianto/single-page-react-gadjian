@@ -9,50 +9,46 @@ class MainPages extends React.Component{
 		super(props);
 		this.state = {
 			page: 1,
-			personnel:[],
+			all_personnel:[],
+			show_personnel: [],
 			isLoading: false,
 		}
 	}
 
 	getPersonnelApi = async () => {
+
 		this.setState({isLoading : true});
 
-		var res_personnel = [];
-
-		// mengambil index pertama personnel berdasarkan page
-		var first_personnel = this.state.page * 4 - 4;
-
-		// push state personal dengan beberapa kali request secara Asynchronous
-		// karena data array langsung 1-4 tidak tersedia
-		for (let i=first_personnel; i < first_personnel + 4; i++){
-			await get(`https://randomuser.me/api/?results=${i+1}`)
+		await get(`https://randomuser.me/api/?results=28`)
 				.then(res => {
-					var res_api = res.data.results[0];
-					res_personnel.push({
-							id: res_api.id.value,
-							name: res_api.name.first + ' ' + res_api.name.last,
-							phone: res_api.phone,
-							date: res_api.registered.date.substring(0,10),
-							email: res_api.email,
-							pict: res_api.picture.large,
-						})
-					})
-				.catch(err => console.log(err));
-		}
+					this.setState({
+						all_personnel: res.data.results,
+						show_personnel: res.data.results.slice(0,4),
+					});
+				}).catch(err => console.log(err));
 
-		this.setState({personnel: res_personnel, isLoading: false});
-
-
+		this.setState({isLoading: false});
 	}
 
 	_btnPersonnel = async (type) => {
 
-		if (type === 'next' && this.state.page < 3){
-			await this.setState({page: this.state.page + 1});
-			this.getPersonnelApi();
+		if (type === 'next' && this.state.page < this.state.all_personnel.length/4){
+			// jika posisi page = 1 dan click btn makan akan return 4
+			// state page personnel updated dislice 4-8 untuk page 2
+			let first_personnel = (this.state.page + 1) * 4 - 4;
+
+			await this.setState({
+				page: this.state.page + 1,
+				show_personnel: this.state.all_personnel.slice(first_personnel, first_personnel + 4),
+			})
 		} else if(type === 'previos' && this.state.page > 1) {
-			await this.setState({page: this.state.page - 1});
-			this.getPersonnelApi();
+
+			let first_personnel = (this.state.page - 1) * 4 - 4;
+
+			await this.setState({
+				page: this.state.page - 1,
+				show_personnel: this.state.all_personnel.slice(first_personnel, first_personnel + 4),
+			})
 		}
 
 	}
@@ -89,12 +85,12 @@ class MainPages extends React.Component{
 				{this.state.isLoading ? <Loading /> : (
 					<>
 						<div className='lg:grid lg:grid-cols-4 gap-7 my-16'>
-							{this.state.personnel.map((val, idx) => (
+							{this.state.show_personnel.map((val, idx) => (
 								<CardPersonnel
 									key={idx}
-									id={val.id}
-									pict={val.pict}
-									name={val.name}
+									id={val.id.value}
+									pict={val.picture.large}
+									name={val.name.first + ' ' + val.name.last}
 									phone={val.phone}
 									date={val.date}
 									email={val.email}
@@ -102,7 +98,7 @@ class MainPages extends React.Component{
 							))}
 						</div>
 					</>
-					) }
+					)}
 
 
 
@@ -115,7 +111,7 @@ class MainPages extends React.Component{
 							<span>Previos Page</span>
 					</button>
 					<button
-						className={this.state.page === 3 ? 'flex items-center mx-3 fill-current text-font cursor-default focus:outline-none' : 'flex items-center mx-3 focus:outline-none'}
+						className={this.state.page === this.state.all_personnel.length/4 ? 'flex items-center mx-3 fill-current text-font cursor-default focus:outline-none' : 'flex items-center mx-3 focus:outline-none'}
 						onClick={() => this._btnPersonnel('next')}>
 						<span>Next Page</span>
 						<svg className='w-3 ml-2' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 492 492"><path d="M382.68 226.8L163.73 7.86C158.67 2.79 151.91 0 144.7 0s-13.97 2.8-19.03 7.86l-16.13 16.12a26.95 26.95 0 000 38.06L293.4 245.9 109.34 429.96a26.74 26.74 0 00-7.86 19.03c0 7.21 2.8 13.97 7.86 19.04l16.12 16.11c5.07 5.07 11.83 7.86 19.03 7.86s13.97-2.79 19.04-7.86L382.68 265a26.76 26.76 0 007.85-19.09 26.75 26.75 0 00-7.85-19.1z"/></svg>
@@ -123,7 +119,7 @@ class MainPages extends React.Component{
 				</div>
 
 				<div className='flex justify-center text-font my-2'>
-					<p>Page {this.state.page} of 3</p>
+					<p>Page {this.state.page} of {this.state.all_personnel.length/4}</p>
 				</div>
 
 			</>
