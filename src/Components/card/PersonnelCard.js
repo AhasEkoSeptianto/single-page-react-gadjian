@@ -12,7 +12,7 @@ class PersonnelCard extends React.Component{
 
 				<div className='flex lg:block items-center'>
 					<div className='m-5'>
-						<img src={this.props.pict} alt='personnel' className='flex justify-center items-center border border-gray_more rounded-full w-30 h-30 mx-auto' />
+						<img src={this.props.pict} alt='personnel' className='border border-gray_more rounded-full w-20 mx-auto' />
 					</div>
 
 

@@ -21,6 +21,7 @@ class MainPages extends React.Component{
 
 		await get(`https://randomuser.me/api/?results=28`)
 				.then(res => {
+					console.log(res);
 					this.setState({
 						all_personnel: res.data.results,
 						show_personnel: res.data.results.slice(0,4),
